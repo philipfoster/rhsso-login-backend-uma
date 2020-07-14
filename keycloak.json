@@ -1,0 +1,12 @@
+{
+  "realm": "test-app",
+  "auth-server-url": "https://ec2-3-130-236-137.us-east-2.compute.amazonaws.com:8443/auth/",
+  "ssl-required": "external",
+  "resource": "react-test-app",
+  "verify-token-audience": false,
+  "credentials": {
+    "secret": "76911c20-fc4c-4672-af8c-c3839634fa18"
+  },
+  "use-resource-role-mappings": true,
+  "confidential-port": 0
+}
