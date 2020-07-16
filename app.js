@@ -38,6 +38,8 @@ app.use(keycloak.middleware())
 
 
 const helloRoute = require('./routes/hello')
+const listItemsRoute = require('./routes/list_items')
+const insertItemRoute = require('./routes/insert_item')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -46,11 +48,34 @@ app.use(cookieParser());
 
 // console.log("type = " + typeof keycloak.protect)
 app.use('/',
+    // keycloak.enforcer{}
     keycloak.protect((token) => {
       console.log(token)
       return token.hasRealmRole("test-role")
     }),
     helloRoute)
+
+
+app.use('/items',
+    // keycloak.enforcer{}
+    keycloak.enforcer(['list-items:read'], {
+      claims: function (req) {
+        return {
+          "http.uri": ["/items"]
+        }
+      }
+    }),
+    listItemsRoute)
+
+app.use('/items',
+    // keycloak.enforcer{}
+    keycloak.protect((token) => {
+      console.log(token)
+      return token.hasRealmRole("test-role")
+    }),
+    insertItemRoute)
+
+
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 
