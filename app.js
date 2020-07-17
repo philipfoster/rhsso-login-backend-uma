@@ -58,10 +58,6 @@ app.use(cookieParser());
 //     listItemsRoute
 // )
 
-app.get('/items/canpost', keycloak.protect(), function (req, res) {
-  res.setHeader("Content-Type", "application/json")
-  res.send('[]')
-})
 
 app.use('/items',
     // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
@@ -72,23 +68,28 @@ app.use('/items',
 )
 
 
+// app.use('/items',
+//     // keycloak.enforcer{}
+//     keycloak.protect((token) => {
+//       console.log(token)
+//       return token.hasRealmRole("list-writer")
+//     }),
+//     insertItemsRoute
+// )
+
 app.use('/items',
-    // keycloak.enforcer{}
-    keycloak.protect((token) => {
-      console.log(token)
-      return token.hasRealmRole("list-writer")
-    }),
+    keycloak.enforcer('listitems:write'),
     insertItemsRoute
 )
 
-
-
-
 // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'})
-// app.use('/items',
-//     // keycloak.enforcer{}
-//     keycloak.enforcer('itemlist:listall'),
-//     listItemsRoute)
+app.use('/items',
+    // keycloak.enforcer{}
+    keycloak.enforcer('listitems:read'),
+    listItemsRoute
+)
+
+
 
 // app.use('/items',
 //     keycloak.enforcer(keycloak.enforcer(['list-items:read', 'list-items:create'])),

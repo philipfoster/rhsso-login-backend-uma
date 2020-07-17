@@ -3,6 +3,11 @@ let express = require('express');
 let router = express.Router()
 let db = require('../item_db')
 
+router.get('/canpost', function (req, res) {
+  res.setHeader("Content-Type", "application/json")
+  res.send('[]')
+})
+
 router.post('/', function (req, res) {
   const body = req.body
   body.forEach((item) => {
