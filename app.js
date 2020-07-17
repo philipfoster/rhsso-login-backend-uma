@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const _keycloak = require('keycloak-connect')
 const session = require('express-session')
+const cors = require('cors')
 
 const port = 3001
 const app = express()
@@ -28,6 +29,8 @@ const keycloak = new _keycloak({
 //   realm: 'test-app',
 // };
 
+app.use(cors())
+
 app.use(session({
   store: memoryStore,
   secret: 'secret'
@@ -37,9 +40,9 @@ app.use(session({
 app.use(keycloak.middleware())
 
 
-const helloRoute = require('./routes/hello')
 const listItemsRoute = require('./routes/list_items')
-const insertItemRoute = require('./routes/insert_item')
+const insertItemsRoute = require('./routes/insert_item')
+// const insertItemRoute = require('./routes/insert_item')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -47,36 +50,52 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // console.log("type = " + typeof keycloak.protect)
-app.use('/',
-    // keycloak.enforcer{}
+// app.use('/',
+//     // keycloak.enforcer{}
+//     keycloak.protect((token) => {
+//       return token.hasRealmRole("list-reader")
+//     }),
+//     listItemsRoute
+// )
+
+app.get('/items/canpost', keycloak.protect(), function (req, res) {
+  res.setHeader("Content-Type", "application/json")
+  res.send('[]')
+})
+
+app.use('/items',
+    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
     keycloak.protect((token) => {
-      console.log(token)
-      return token.hasRealmRole("test-role")
+      return token.hasRealmRole("list-reader")
     }),
-    helloRoute)
+    listItemsRoute
+)
 
 
 app.use('/items',
     // keycloak.enforcer{}
-    keycloak.enforcer(['list-items:read'], {
-      claims: function (req) {
-        return {
-          "http.uri": ["/items"]
-        }
-      }
-    }),
-    listItemsRoute)
-
-app.use('/items',
-    // keycloak.enforcer{}
     keycloak.protect((token) => {
       console.log(token)
-      return token.hasRealmRole("test-role")
+      return token.hasRealmRole("list-writer")
     }),
-    insertItemRoute)
+    insertItemsRoute
+)
 
 
 
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+
+// keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'})
+// app.use('/items',
+//     // keycloak.enforcer{}
+//     keycloak.enforcer('itemlist:listall'),
+//     listItemsRoute)
+
+// app.use('/items',
+//     keycloak.enforcer(keycloak.enforcer(['list-items:read', 'list-items:create'])),
+//     insertItemRoute)
+
+
+
+app.listen(port, () => console.log(`RHSSO Backend listening at http://localhost:${port}`))
 
 module.exports = app

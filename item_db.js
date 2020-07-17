@@ -6,7 +6,7 @@
 class ItemDb {
 
   constructor() {
-    this.db = ["hello", "world"]
+    this.db = []
   }
 
   insert(item) {

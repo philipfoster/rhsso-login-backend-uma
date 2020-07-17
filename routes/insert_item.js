@@ -9,6 +9,10 @@ router.post('/', function (req, res) {
     console.log(item)
     db.insert(item)
   })
+
+  res.setHeader("Content-Type", "application/json")
+  res.send(JSON.stringify(db.getAllItems()))
 })
+
 
 module.exports = router;
