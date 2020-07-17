@@ -49,53 +49,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// console.log("type = " + typeof keycloak.protect)
-// app.use('/',
-//     // keycloak.enforcer{}
-//     keycloak.protect((token) => {
-//       return token.hasRealmRole("list-reader")
-//     }),
-//     listItemsRoute
-// )
+app.get('/items/canpost',
+    keycloak.enforcer("listitems:write"),
+    function (req, res) {
+      res.setHeader("Content-Type", "application/json")
+      res.send('[ "canPost": true ]')
+})
 
-
-app.use('/items',
-    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
-    keycloak.protect((token) => {
-      return token.hasRealmRole("list-reader")
-    }),
-    listItemsRoute
-)
-
-
-// app.use('/items',
-//     // keycloak.enforcer{}
-//     keycloak.protect((token) => {
-//       console.log(token)
-//       return token.hasRealmRole("list-writer")
-//     }),
-//     insertItemsRoute
-// )
-
-app.use('/items',
+app.post('/items',
     keycloak.enforcer('listitems:write'),
     insertItemsRoute
 )
 
-// keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'})
-app.use('/items',
+app.get('/items',
     // keycloak.enforcer{}
     keycloak.enforcer('listitems:read'),
     listItemsRoute
 )
 
-
-
-// app.use('/items',
-//     keycloak.enforcer(keycloak.enforcer(['list-items:read', 'list-items:create'])),
-//     insertItemRoute)
-
-
+app.use((req, res) => {
+  res.cookies.clearCookie("connect.sid")
+})
 
 app.listen(port, () => console.log(`RHSSO Backend listening at http://localhost:${port}`))
 
