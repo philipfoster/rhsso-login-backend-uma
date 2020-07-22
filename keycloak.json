@@ -1,13 +1,11 @@
 {
   "realm": "test-app",
-  "auth-server-url": "https://ec2-3-130-236-137.us-east-2.compute.amazonaws.com:8443/auth/",
+  "auth-server-url": "http://sso.nvsconsulting.io/auth/",
   "ssl-required": "external",
   "resource": "react-test-app",
   "verify-token-audience": false,
   "credentials": {
-    "secret": "76911c20-fc4c-4672-af8c-c3839634fa18"
+    "secret": "ca151ece-10db-4a2c-a7b9-0eb6e7c8b2d9"
   },
-  "use-resource-role-mappings": true,
-  "confidential-port": 0,
-  "policy-enforcer": {}
+  "confidential-port": 0
 }

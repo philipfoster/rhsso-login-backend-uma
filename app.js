@@ -17,7 +17,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
 const memoryStore = new session.MemoryStore();
 
-
 const keycloak = new _keycloak({
   store: new session.MemoryStore()
 }, "./keycloak.json");
@@ -42,6 +41,7 @@ app.use(keycloak.middleware())
 
 const listItemsRoute = require('./routes/list_items')
 const insertItemsRoute = require('./routes/insert_item')
+const canInsertRoute = require('./routes/can_post')
 // const insertItemRoute = require('./routes/insert_item')
 
 app.use(logger('dev'));
@@ -49,27 +49,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get('/items/canpost',
-    keycloak.enforcer("listitems:write"),
-    function (req, res) {
-      res.setHeader("Content-Type", "application/json")
-      res.send('[ "canPost": true ]')
-})
 
-app.post('/items',
-    keycloak.enforcer('listitems:write'),
+
+app.use('/items/canpost',
+    // keycloak.enforcer{}
+    keycloak.protect((token) => {
+      return token.hasRealmRole("list-writer")
+    }),
+    canInsertRoute
+)
+
+app.use('/items',
+    // keycloak.enforcer{}
+    keycloak.protect((token) => {
+      return token.hasRealmRole("list-writer")
+    }),
     insertItemsRoute
 )
 
-app.get('/items',
-    // keycloak.enforcer{}
-    keycloak.enforcer('listitems:read'),
+app.use('/items',
+    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
+    keycloak.protect((token) => {
+      return token.hasRealmRole("list-reader")
+    }),
     listItemsRoute
 )
-
-app.use((req, res) => {
-  res.cookies.clearCookie("connect.sid")
-})
 
 app.listen(port, () => console.log(`RHSSO Backend listening at http://localhost:${port}`))
 
