@@ -49,7 +49,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-
+app.use('/items',
+    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
+    keycloak.protect((token) => {
+      return token.hasRealmRole("list-reader")
+    }),
+    listItemsRoute
+)
 
 app.use('/items/canpost',
     // keycloak.enforcer{}
@@ -67,13 +73,7 @@ app.use('/items',
     insertItemsRoute
 )
 
-app.use('/items',
-    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
-    keycloak.protect((token) => {
-      return token.hasRealmRole("list-reader")
-    }),
-    listItemsRoute
-)
+
 
 app.listen(port, () => console.log(`RHSSO Backend listening at http://localhost:${port}`))
 
