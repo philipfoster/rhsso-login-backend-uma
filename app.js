@@ -50,26 +50,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/items',
-    // keycloak.enforcer('item:read', {resource_server_id: 'react-test-app'}),
-    keycloak.protect((token) => {
-      return token.hasRealmRole("list-reader")
-    }),
+  keycloak.enforcer('item:read', {resource_server_id: 'uma-client'}),
+    // keycloak.protect((token) => {
+    //   return token.hasRealmRole("list-reader")
+    // }),
     listItemsRoute
 )
 
 app.use('/items/canpost',
-    // keycloak.enforcer{}
-    keycloak.protect((token) => {
-      return token.hasRealmRole("list-writer")
-    }),
+    keycloak.enforcer('item:write', {resource_server_id: 'uma-client'}),
+    // keycloak.protect((token) => {
+    //   return token.hasRealmRole("list-writer")
+    // }),
     canInsertRoute
 )
 
 app.use('/items',
-    // keycloak.enforcer{}
-    keycloak.protect((token) => {
-      return token.hasRealmRole("list-writer")
-    }),
+    keycloak.enforcer('item:write', {resource_server_id: 'uma-client'}),
+    // keycloak.protect((token) => {
+    //   return token.hasRealmRole("list-writer")
+    // }),
     insertItemsRoute
 )
 
